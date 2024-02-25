@@ -16,6 +16,7 @@ public class PlayerController : MonoBehaviour
     public Transform player;
  
     CharacterController characterController;
+    UIManager uiManager;
     Vector3 moveVelocity;
     Vector3 turnVelocity;
  
@@ -23,6 +24,7 @@ public class PlayerController : MonoBehaviour
     {
         characterController = GetComponent<CharacterController>();
         GetComponent<Renderer>().material.color = Color.blue;
+        uiManager = GameObject.FindObjectOfType<UIManager>();
     }
  
     void Update()
@@ -63,6 +65,7 @@ public class PlayerController : MonoBehaviour
                         hasKilledPlayer2 = true;
                         player1Score++;
                         Debug.Log("Player 1 Score: " + player1Score);
+                        uiManager.AddScore(player1Score);
                     }
                 }
             }
@@ -73,6 +76,9 @@ public class PlayerController : MonoBehaviour
             Debug.Log("Player 1 wins!");
             player1Score = 0;
             Player2Controller.player2Score = 0;
+            uiManager.DisplayWinner("Player 1");
+            uiManager.AddScore(player1Score);
+            uiManager.AddScore2(Player2Controller.player2Score);
         }
     }
 
