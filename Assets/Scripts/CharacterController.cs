@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
- 
+
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
@@ -12,31 +12,33 @@ public class PlayerController : MonoBehaviour
     public float raycastDistance = 5f;
     public static bool hasKilledPlayer2 = false;
     public static int player1Score = 0;
+    public bool oneHasWon = false;
+    public float pushForce = 3.0f;
 
     public Transform player;
- 
+
     CharacterController characterController;
     UIManager uiManager;
     Vector3 moveVelocity;
     Vector3 turnVelocity;
- 
+
     void Awake()
     {
         characterController = GetComponent<CharacterController>();
         GetComponent<Renderer>().material.color = Color.blue;
         uiManager = GameObject.FindObjectOfType<UIManager>();
     }
- 
+
     void Update()
     {
         var hInput = Input.GetAxis("Horizontal");
         var vInput = Input.GetAxis("Vertical");
- 
-        if(characterController.isGrounded)
+
+        if (characterController.isGrounded)
         {
             moveVelocity = transform.forward * speed * vInput;
             turnVelocity = transform.up * rotationSpeed * hInput;
-            if(Input.GetKeyDown(KeyCode.S))
+            if (Input.GetKeyDown(KeyCode.S))
             {
                 moveVelocity.y = jumpSpeed;
             }
@@ -71,14 +73,32 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        if (player1Score == 5)
+        if ((player1Score == 5) && !oneHasWon)
         {
             Debug.Log("Player 1 wins!");
-            player1Score = 0;
-            Player2Controller.player2Score = 0;
+            //player1Score = 0;
+            //Player2Controller.player2Score = 0;
             uiManager.DisplayWinner("Player 1");
-            uiManager.AddScore(player1Score);
-            uiManager.AddScore2(Player2Controller.player2Score);
+            //uiManager.AddScore(player1Score);
+            //uiManager.AddScore2(Player2Controller.player2Score);
+            GetComponent<CharacterController>().enabled = false;
+            oneHasWon = true;
+        }
+        if (Player2Controller.player2Score == 5)
+        {
+            GetComponent<CharacterController>().enabled = false;
+        }
+    }
+
+    private ControllerColliderHit contact;
+    
+    void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        contact = hit;
+        Rigidbody body = hit.collider.attachedRigidbody;
+        if (body != null && !body.isKinematic)
+        {
+            body.velocity = hit.moveDirection * pushForce;
         }
     }
 
@@ -92,17 +112,50 @@ public class PlayerController : MonoBehaviour
         // Disable the CharacterController
         GetComponent<CharacterController>().enabled = false;
 
-        StartCoroutine(RespawnP1());
-        
+        //GameObject player2Object = GameObject.Find("Player 2");
+
+        // Player2Controller player2Controller = player2Object.GetComponent<Player2Controller>();
+
+        // if(player2Controller.twoHasWon == false)
+        // {
+        //     StartCoroutine(RespawnP1());
+        // }
+        // Find the GameObject in the scene
+        GameObject player2Object = GameObject.Find("Player 2");
+
+        // Check if we found it
+        if (player2Object != null)
+        {
+            // Get the Player2Controller component
+            Player2Controller player2Controller = player2Object.GetComponent<Player2Controller>();
+
+            // Check if we found the Player2Controller
+            if (player2Controller != null)
+            {
+                if (player2Controller.twoHasWon == false)
+                {
+                    StartCoroutine(RespawnP1());
+                }
+            }
+            else
+            {
+                Debug.LogError("Player2Controller not found on the player object.");
+            }
+        }
+        else
+        {
+            // Log an error if we didn't find the player object
+            Debug.LogError("Player2 object not found in the scene.");
+        }
     }
 
     IEnumerator RespawnP1()
     {
         yield return new WaitForSeconds(2);
 
-        // Generate a random x and z position between -30 and 30
-        float x = Random.Range(-30, 30);
-        float z = Random.Range(-15, 30);
+        // Generate a random position between
+        float x = Random.Range(-25, 25);
+        float z = Random.Range(-15, 9);
 
         // Use the current y position
         float y = transform.position.y;

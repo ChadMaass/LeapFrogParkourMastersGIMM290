@@ -12,6 +12,7 @@ public class Player2Controller : MonoBehaviour
     public float raycastDistance = 5f;
     public static bool hasKilledPlayer = false;
     public static int player2Score = 0;
+    public bool twoHasWon = false;
 
     public Transform player2;
 
@@ -71,14 +72,20 @@ public class Player2Controller : MonoBehaviour
             }
         }
 
-        if (player2Score == 5)
+        if ((player2Score == 5) && !twoHasWon)
         {
             Debug.Log("Player 2 wins!");
-            player2Score = 0;
-            PlayerController.player1Score = 0;
+            //player2Score = 0;
+            //PlayerController.player1Score = 0;
             uiManager.DisplayWinner("Player 2");
-            uiManager.AddScore2(player2Score);
-            uiManager.AddScore(PlayerController.player1Score);
+            //uiManager.AddScore2(player2Score);
+            //uiManager.AddScore(PlayerController.player1Score);
+            GetComponent<CharacterController>().enabled = false;
+            twoHasWon = true;
+        }
+        if(PlayerController.player1Score == 5)
+        {
+            GetComponent<CharacterController>().enabled = false;
         }
     }
 
@@ -97,17 +104,23 @@ public class Player2Controller : MonoBehaviour
         // Disable the CharacterController
         GetComponent<CharacterController>().enabled = false;
 
-        StartCoroutine(RespawnP2());
-        
+        GameObject playerObject = GameObject.Find("Player 1");
+
+        PlayerController playerController = playerObject.GetComponent<PlayerController>();
+
+        if(playerController.oneHasWon == false)
+        {
+            StartCoroutine(RespawnP2());
+        }
     }
 
     IEnumerator RespawnP2()
     {
         yield return new WaitForSeconds(2);
 
-        // Generate a random x and z position between -30 and 30
-        float x = Random.Range(-30, 30);
-        float z = Random.Range(-15, 30);
+        // Generate a random x and z position
+        float x = Random.Range(-25, 25);
+        float z = Random.Range(-15, 9);
 
         // Use the current y position
         float y = transform.position.y;

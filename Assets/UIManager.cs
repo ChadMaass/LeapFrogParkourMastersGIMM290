@@ -36,12 +36,12 @@ public class UIManager : MonoBehaviour
     {
         // Update the text property with the name of the winning player
         winnerText.text = playerName + " Wins!";
-        StartCoroutine(ResetWinnerTextAfterDelay(5));
+        //StartCoroutine(ResetWinnerTextAfterDelay(5));
     }
 
-    IEnumerator ResetWinnerTextAfterDelay(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        winnerText.text = "";
-    }
+    // IEnumerator ResetWinnerTextAfterDelay(float delay)
+    // {
+    //     yield return new WaitForSeconds(delay);
+    //     winnerText.text = "";
+    // }
 }
